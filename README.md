@@ -10,9 +10,14 @@ Mermaid → ELK → one Three.js scene you can view **flat, isometric or 3D**, w
 
 ```bash
 pnpm install
-pnpm dev          # http://localhost:5173
-pnpm storybook    # stories: node shape, subgraph, full sample, sequence
+pnpm dev          # site at http://localhost:5173/, viewer at /app/
+pnpm capture      # regenerate public/*.png from the real scene (needs Chrome; CHROME_PATH to override)
+pnpm storybook    # stories: node shape, subgraph, full sample, sequence, site screens
 ```
+
+Public site: https://infinitedusky.github.io/merman/ (live after the first deploy). It deploys to GitHub Pages through `.github/workflows/pages.yml`. For now that workflow runs only when started by hand (`workflow_dispatch`), so merging to main publishes nothing.
+
+One Vite project, two HTML entries: `index.html` is the marketing site (code in `src/site/`), and `app/index.html` is the viewer (`src/main.tsx`). Builds and `vite preview` serve both under `/merman/`. In dev they are served under `/`.
 
 Stack: Vite, React, react-three-fiber, drei (troika text), elkjs. Parser, ELK layout (`src/layout.ts`, swappable behind `layout(graph)`) and sequence layout (`src/seq.ts`) are our own.
 
