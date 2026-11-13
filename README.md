@@ -1,4 +1,6 @@
-# isomaid-scene
+# merman
+
+> Mermaid diagrams, as a 3D scene (flat, iso, 3D).
 
 Mermaid → ELK → one Three.js scene you can view **flat, isometric or 3D**, with animated camera transitions.
 
