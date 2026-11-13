@@ -70,7 +70,7 @@ function Edge({ r, boxes, labelMode }: { r: Route; boxes: Map<string, Box>; labe
   )
 }
 
-function Env({ children }: { children: React.ReactNode }) {
+function Env({ children, wheelZoom = true }: { children: React.ReactNode; wheelZoom?: boolean }) {
   const { gl } = useThree()
   const startCamDrag = (e: ThreeEvent<PointerEvent>) => {
     let lx = e.nativeEvent.clientX, ly = e.nativeEvent.clientY
@@ -95,10 +95,11 @@ function Env({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const el = gl.domElement
-    const wheel = (e: WheelEvent) => { e.preventDefault(); cam.goal.H = Math.min(200, Math.max(3, cam.goal.H * Math.exp(e.deltaY * 0.001))) }
+    // wheelZoom=false: leave the event alone so an embedding page scrolls over the scene
+    const wheel = (e: WheelEvent) => { if (!wheelZoom) return; e.preventDefault(); cam.goal.H = Math.min(200, Math.max(3, cam.goal.H * Math.exp(e.deltaY * 0.001))) }
     el.addEventListener('wheel', wheel, { passive: false })
     return () => el.removeEventListener('wheel', wheel)
-  }, [gl])
+  }, [gl, wheelZoom])
 
 
   return (
@@ -117,7 +118,7 @@ function Env({ children }: { children: React.ReactNode }) {
   )
 }
 
-function Scene({ data, labelMode, onDrill }: { data: LayoutResult; labelMode: LabelMode; onDrill: (cx: number, cz: number, X: number, Z: number) => void }) {
+function Scene({ data, labelMode, onDrill, wheelZoom }: { data: LayoutResult; labelMode: LabelMode; onDrill: (cx: number, cz: number, X: number, Z: number) => void; wheelZoom: boolean }) {
   const { camera, gl, raycaster } = useThree()
   const [ver, setVer] = useState(0)
   const ovr = useRef<Ovr>({})
@@ -160,7 +161,7 @@ function Scene({ data, labelMode, onDrill }: { data: LayoutResult; labelMode: La
 
   return (
     <>
-      <Env>
+      <Env wheelZoom={wheelZoom}>
       {[...boxes.values()].map(b => {
         const w = b.w * S, h = b.h * S
         const pos: [number, number, number] = [wx(b.x) + w / 2, baseOf(b), wz(b.y) + h / 2]
@@ -201,7 +202,13 @@ function NodeLift({ pos, hover, children, onDown, onOver, onOut }: { pos: [numbe
   )
 }
 
-export function SceneView({ data, labelMode, mode }: { data: LayoutResult | SeqLayout | null; labelMode: LabelMode; mode: Mode }) {
+export function SceneView({ data, labelMode, mode, showFps = true, wheelZoom = true }: {
+  data: LayoutResult | SeqLayout | null; labelMode: LabelMode; mode: Mode
+  /** Show the fps counter bottom-right. Default true. */
+  showFps?: boolean
+  /** Zoom on mouse wheel (and stop page scroll). False lets the page scroll over the scene. Default true. */
+  wheelZoom?: boolean
+}) {
   const fpsRef = useRef<HTMLDivElement>(null)
   useEffect(() => {
     if (!data) return
@@ -213,9 +220,9 @@ export function SceneView({ data, labelMode, mode }: { data: LayoutResult | SeqL
       <Canvas shadows dpr={[1, 2]} camera={{ fov: 1, near: 1, far: 5000, position: [0, 100, 0] }} gl={{ antialias: true }}>
         <color attach="background" args={['#0f1218']} />
         <Rig fpsRef={fpsRef} />
-        {data && ('kind' in data ? <Env><SeqScene data={data} labelMode={labelMode} /></Env> : <Scene data={data} labelMode={labelMode} onDrill={focusOn} />)}
+        {data && ('kind' in data ? <Env wheelZoom={wheelZoom}><SeqScene data={data} labelMode={labelMode} /></Env> : <Scene data={data} labelMode={labelMode} onDrill={focusOn} wheelZoom={wheelZoom} />)}
       </Canvas>
-      <div ref={fpsRef} style={{ position: 'absolute', right: 12, bottom: 10, color: '#7f8aa3', font: '12px monospace' }} />
+      {showFps && <div ref={fpsRef} style={{ position: 'absolute', right: 12, bottom: 10, color: '#7f8aa3', font: '12px monospace' }} />}
     </>
   )
 }
