@@ -4,14 +4,51 @@
   "title": "Merman/Map",
   "nodes": [
     {
+      "id": "site",
+      "data": {
+        "label": "Marketing site",
+        "tags": [
+          "/"
+        ],
+        "stories": [
+          {
+            "id": "screens-site--desktop",
+            "label": "Desktop"
+          },
+          {
+            "id": "screens-site--phone",
+            "label": "Phone"
+          },
+          {
+            "id": "screens-site--no-web-gl",
+            "label": "No WebGL"
+          }
+        ]
+      }
+    },
+    {
       "id": "app",
       "data": {
         "label": "Viewer",
         "coverage": "existing",
-        "tags": ["/"],
-        "stories": [{ "id": "screens-app--default", "label": "Default" }]
+        "tags": [
+          "/app/"
+        ],
+        "stories": [
+          {
+            "id": "screens-app--default",
+            "label": "Default"
+          }
+        ]
       }
     }
   ],
-  "edges": []
+  "edges": [
+    {
+      "id": "site-app",
+      "source": "site",
+      "target": "app",
+      "label": "Try it live"
+    }
+  ]
 }
